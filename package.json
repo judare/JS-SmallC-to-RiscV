@@ -1,0 +1,13 @@
+
+{
+  "name": "smallc-to-riscv",
+  "version": "1.0.0",
+  "main": "compiler.js",
+  "scripts": {
+    "build": "nearleyc parser.ne -o parser.js",
+    "run": "node compiler.js"
+  },
+  "dependencies": {
+    "nearley": "^2.20.1"
+  }
+}
