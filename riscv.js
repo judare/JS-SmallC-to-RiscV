@@ -3,11 +3,14 @@ export default class RiscVGenerator extends MyLangVisitor {
   constructor() {
     super();
     this.output = [];
-    this.labelCount = 0;
+    this.labels = {};
   }
 
-  getNewLabel(prefix = "L") {
-    return `.${prefix}${this.labelCount++}`;
+  getVarName(prefix = "t") {
+    if (!this.labels[prefix]) {
+      this.labels[prefix] = 0;
+    }
+    return `${prefix}${this.labels[prefix]++}`;
   }
 
   visitFunctionDecl(ctx) {
@@ -45,20 +48,21 @@ export default class RiscVGenerator extends MyLangVisitor {
   }
 
   visitInt(ctx) {
-    const temp = `t${this.labelCount++}`;
+    const temp = this.getVarName("t");
     this.output.push(`    li ${temp},${ctx.getText()} # cargar entero`);
     return temp;
   }
 
   visitId(ctx) {
-    const tmp = `t${this.labelCount++}`;
+    const tmp = this.getVarName("t");
+    this.output.push(`    li ${temp},${ctx.getText()} # cargar variable`);
     return tmp;
   }
 
   visitIfSentencia(ctx) {
     const cond = this.visit(ctx.expresion());
-    const elseLabel = this.getNewLabel("else");
-    const endLabel = this.getNewLabel("end");
+    const elseLabel = "." + this.getVarName("else");
+    const endLabel = "." + this.getVarName("end");
 
     // this.output.push(`    li a5,1`);
     this.output.push(`    bgt ${cond},a5,${elseLabel}`);
@@ -80,13 +84,13 @@ export default class RiscVGenerator extends MyLangVisitor {
     const arg = this.visit(ctx.argumentList().expresion(0));
     this.output.push(`    mv a0,${arg}  # cargar argumento`);
     this.output.push(`    call ${funcName} # llamar a función`);
-    return "a0"; // resultado queda en a0
+    return this.getVarName("a"); // resultado queda en a0
   }
 
   visitSuma(ctx) {
     const left = this.visit(ctx.expresion(0));
     const right = this.visit(ctx.expresion(1));
-    const temp = `t${this.labelCount++}`;
+    const temp = this.getVarName("t");
     this.output.push(`    add ${temp},${left},${right} # expresion suma`);
     return temp;
   }
