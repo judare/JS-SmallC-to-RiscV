@@ -36,10 +36,6 @@ const getRiscvCode = async (input) => {
   return riscvCode;
 };
 
-testAST(fs.readFileSync("./examples/error-var.c", "utf-8")).catch(() =>
-  console.log("✅ Test error successful")
-);
-
 testAST(fs.readFileSync("./examples/done-simple.c", "utf-8")).then(() =>
   console.log("✅ Test ok simple")
 );
@@ -54,4 +50,16 @@ testAST(fs.readFileSync("./examples/done-arr.c", "utf-8")).then(() =>
 
 testAST(fs.readFileSync("./examples/done-math.c", "utf-8")).then(() =>
   console.log("✅ Test ok Math")
+);
+
+testAST(fs.readFileSync("./examples/done-functions.c", "utf-8")).then(() =>
+  console.log("✅ Test ok Functions")
+);
+
+testAST(fs.readFileSync("./examples/error-var.c", "utf-8")).catch(() =>
+  console.log("✅ Test error var")
+);
+
+testAST(fs.readFileSync("./examples/error-localvars.c", "utf-8")).catch(() =>
+  console.log("✅ Test error local vars")
 );
