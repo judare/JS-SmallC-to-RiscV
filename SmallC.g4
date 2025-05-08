@@ -59,19 +59,20 @@ incremento
     : lvalue ('++' | '--') ';'
     ;
 
-funArgumentosLlamado
-    :( expresion (',' expresion)*)?
+funArgsLlamado
+    : expresion (',' expresion)*
     ;
 
 expresion
-    : expresion op=('*'|'/') expresion     # MulDivExpr
-    | expresion op=('+'|'-') expresion     # AddSubExpr
-    | expresion op=('=='|'!='|'<'|'>'|'<='|'>=') expresion  # CompareExpr
-    | expresion op=('&&'|'||') expresion   # LogicalExpr
-    | '(' expresion ')'               # ParenExpr
-    | ID '(' funArgumentosLlamado ')'     # FuncionExpr
+    : expresion op=('*'|'/') expresion     # MathMultiplicacion
+    | expresion op=('+'|'-') expresion     # MathSumaResta
+    | expresion op=('=='|'!='|'<'|'>'|'<='|'>=') expresion  # BoolComparacion
+    | expresion op=('&&'|'||') expresion   # BoolLogico
+    | '(' expresion ')'               # ExpresionContenedora
+    | ID '(' funArgsLlamado? ')'     # Funcion
     | lvalue                       # LvalueExpr
-    | INT                        # IntExpr
+    | INT                        # Entero
+    | '"' ID* '"'                 # Cadena
     ;
 
 // Comentarios

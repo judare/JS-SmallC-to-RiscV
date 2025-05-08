@@ -3,7 +3,7 @@ import fs from "fs";
 import SmallCLexer from "./parser/SmallCLexer.js";
 import SmallCParser from "./parser/SmallCParser.js";
 import CodeGenVisitor from "./CodeGenVisitor.js";
-
+import SemanticValidator from "./lexer.js";
 class MyErrorListener extends antlr4.error.ErrorListener {
   syntaxError(recognizer, offendingSymbol, line, column, msg, err) {
     throw new Error(
@@ -22,9 +22,45 @@ const getAST = (input) => {
   return parser.program();
 };
 
-const testAST = async (input) => {
+const testSyntax = async (file, expected = "done") => {
+  const input = fs.readFileSync(file, "utf-8");
+  try {
+    await getAST(input);
+    if (expected === "done") {
+      console.log("✅ Test ok " + file);
+    } else if (expected === "error") {
+      console.log("❌ Test error " + file);
+    }
+  } catch (err) {
+    if (expected === "done") {
+      console.log("❌ Test error " + file);
+    } else if (expected === "error") {
+      console.log("✅ Test ok " + file);
+    }
+  }
+};
+
+const testLexer = async (file, expected = "done") => {
+  const input = fs.readFileSync(file, "utf-8");
   const tree = await getAST(input);
-  return tree;
+
+  const walker = new antlr4.tree.ParseTreeWalker();
+  const validator = new SemanticValidator();
+  walker.walk(validator, tree);
+
+  if (validator.errors.length) {
+    if (expected === "done") {
+      console.log("❌ Test error " + file);
+    } else if (expected === "error") {
+      console.log("✅ Test ok " + file);
+    }
+  } else {
+    if (expected === "done") {
+      console.log("✅ Test ok " + file);
+    } else if (expected === "error") {
+      console.log("❌ Test error " + file);
+    }
+  }
 };
 
 const getRiscvCode = async (input) => {
@@ -36,30 +72,11 @@ const getRiscvCode = async (input) => {
   return riscvCode;
 };
 
-testAST(fs.readFileSync("./examples/done-simple.c", "utf-8")).then(() =>
-  console.log("✅ Test ok simple")
-);
-
-testAST(fs.readFileSync("./examples/done-loops.c", "utf-8")).then(() =>
-  console.log("✅ Test ok loops")
-);
-
-testAST(fs.readFileSync("./examples/done-arr.c", "utf-8")).then(() =>
-  console.log("✅ Test ok arrays")
-);
-
-testAST(fs.readFileSync("./examples/done-math.c", "utf-8")).then(() =>
-  console.log("✅ Test ok Math")
-);
-
-testAST(fs.readFileSync("./examples/done-functions.c", "utf-8")).then(() =>
-  console.log("✅ Test ok Functions")
-);
-
-testAST(fs.readFileSync("./examples/error-var.c", "utf-8")).catch(() =>
-  console.log("✅ Test error var")
-);
-
-testAST(fs.readFileSync("./examples/error-localvars.c", "utf-8")).catch(() =>
-  console.log("✅ Test error local vars")
-);
+testSyntax("./examples/done-simple.c");
+testSyntax("./examples/done-loops.c");
+testSyntax("./examples/done-arr.c");
+testSyntax("./examples/done-math.c");
+testSyntax("./examples/done-functions.c");
+testSyntax("./examples/error-var.c", "error");
+testSyntax("./examples/error-localvars.c", "error");
+testLexer("./examples/error-lexer-var.c", "error");
