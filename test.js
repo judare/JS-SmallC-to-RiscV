@@ -51,7 +51,7 @@ const testLexer = async (file, expected = "done") => {
 
   if (validator.error) {
     if (expected === "done") {
-      console.log("❌ Test error " + file);
+      console.log("❌ Test error " + file, validator.error);
     } else if (expected === "error") {
       console.log("✅ Test ok " + file, validator.error);
     }
@@ -71,6 +71,7 @@ testSyntax("./examples/done-math.c");
 testSyntax("./examples/done-functions.c");
 testSyntax("./examples/error-var.c", "error");
 testSyntax("./examples/error-localvars.c", "error");
+testLexer("./examples/done-fib.c", "done");
 testLexer("./examples/error-lexer-var.c", "error");
 testLexer("./examples/error-lexer-nodeclared-fn.c", "error");
 testLexer("./examples/error-lexer-nodeclared.c", "error");

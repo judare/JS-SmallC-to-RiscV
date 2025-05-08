@@ -3,7 +3,7 @@ import SmallCListener from "./parser/SmallCListener.js";
 export default class SemanticValidator extends SmallCListener {
   constructor() {
     super();
-    this.scope = {}; // stack de scopes para variables
+    this.scope = {};
     this.error = "";
   }
 
