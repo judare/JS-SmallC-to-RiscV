@@ -23,10 +23,12 @@ export default class CodeGenVisitor extends SmallCBaseVisitor {
   }
 
   visitAssignment(ctx) {
-    const id = ctx.ID().getText();
-    const value = this.visit(ctx.expr());
-    this.output.push(`li t0, ${value}`);
-    this.output.push(`# store en ${id} (omitido: no hay memoria simulada aún)`);
+    const lvalCtx = ctx.lvalue();
+
+    // const id = lvalCtx.ID().getText();
+    // const value = this.visit(lvalCtx.expr());
+    // this.output.push(`li t0, ${value}`);
+    // this.output.push(`# store en ${id} (omitido: no hay memoria simulada aún)`);
     return null;
   }
 
