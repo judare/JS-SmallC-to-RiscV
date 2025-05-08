@@ -1,13 +1,13 @@
-
 {
+  "type": "module",
   "name": "smallc-to-riscv",
   "version": "1.0.0",
   "main": "compiler.js",
   "scripts": {
-    "build": "nearleyc parser.ne -o parser.js",
-    "run": "node compiler.js"
+    "build": "java -Xmx500M -cp ./antlr.jar org.antlr.v4.Tool -Dlanguage=JavaScript -visitor ./SmallC.g4 -o parser",
+    "start": "npm run build && node main.js"
   },
   "dependencies": {
-    "nearley": "^2.20.1"
+    "antlr4": "^4.13.2"
   }
 }
