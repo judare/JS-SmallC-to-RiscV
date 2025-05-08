@@ -1,9 +1,9 @@
 import antlr4 from "antlr4";
-import fs from "fs";
 import SmallCLexer from "./parser/SmallCLexer.js";
 import SmallCParser from "./parser/SmallCParser.js";
 import CodeGenVisitor from "./CodeGenVisitor.js";
 import SemanticValidator from "./lexer.js";
+
 class MyErrorListener extends antlr4.error.ErrorListener {
   syntaxError(recognizer, offendingSymbol, line, column, msg, err) {
     throw new Error(
@@ -22,47 +22,6 @@ const getAST = (input) => {
   return parser.program();
 };
 
-const testSyntax = async (file, expected = "done") => {
-  const input = fs.readFileSync(file, "utf-8");
-  try {
-    await getAST(input);
-    if (expected === "done") {
-      console.log("✅ Test ok " + file);
-    } else if (expected === "error") {
-      console.log("❌ Test error " + file);
-    }
-  } catch (err) {
-    if (expected === "done") {
-      console.log("❌ Test error " + file);
-    } else if (expected === "error") {
-      console.log("✅ Test ok " + file);
-    }
-  }
-};
-
-const testLexer = async (file, expected = "done") => {
-  const input = fs.readFileSync(file, "utf-8");
-  const tree = await getAST(input);
-
-  const walker = new antlr4.tree.ParseTreeWalker();
-  const validator = new SemanticValidator();
-  walker.walk(validator, tree);
-
-  if (validator.errors.length) {
-    if (expected === "done") {
-      console.log("❌ Test error " + file);
-    } else if (expected === "error") {
-      console.log("✅ Test ok " + file);
-    }
-  } else {
-    if (expected === "done") {
-      console.log("✅ Test ok " + file);
-    } else if (expected === "error") {
-      console.log("❌ Test error " + file);
-    }
-  }
-};
-
 const getRiscvCode = async (input) => {
   const tree = getAST(input);
 
@@ -71,12 +30,3 @@ const getRiscvCode = async (input) => {
 
   return riscvCode;
 };
-
-testSyntax("./examples/done-simple.c");
-testSyntax("./examples/done-loops.c");
-testSyntax("./examples/done-arr.c");
-testSyntax("./examples/done-math.c");
-testSyntax("./examples/done-functions.c");
-testSyntax("./examples/error-var.c", "error");
-testSyntax("./examples/error-localvars.c", "error");
-testLexer("./examples/error-lexer-var.c", "error");
