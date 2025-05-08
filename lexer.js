@@ -15,11 +15,14 @@ export default class SemanticValidator extends SmallCListener {
   }
 
   enterDeclaracion(ctx) {
-    const id = ctx.ID().getText();
-    if (this.scope[id]) {
-      return this.setError(`Variable ya declarada: '${id}'`);
-    }
-    this.scope[id] = "variable";
+    const declare = (id) => {
+      if (this.scope[id]) {
+        return this.setError(`Variable ya declarada: '${id}'`);
+      }
+      this.scope[id] = "variable";
+    };
+    let obj = ctx.ID().length >= 1 ? ctx.ID() : [ctx.ID()];
+    obj.forEach(declare);
   }
 
   enterFunLlamado(ctx) {

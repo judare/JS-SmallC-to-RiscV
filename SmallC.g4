@@ -46,6 +46,7 @@ lvalue
 declaracion
     : tiposPermitidos ID ('[' INT ']')? ';'
     | tiposPermitidos ID  '=' expresion ';'
+    | tiposPermitidos ID  ( ',' ID )* ';'
     ;
 
 asignacion
