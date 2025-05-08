@@ -5,6 +5,7 @@ export default class SemanticValidator extends SmallCListener {
     super();
     this.scope = {};
     this.error = "";
+    this.riscvCode = "hola";
   }
 
   setError(msg) {
