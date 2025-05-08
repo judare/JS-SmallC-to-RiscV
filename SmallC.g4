@@ -11,6 +11,7 @@ bloque
     | incremento
     | block
     | returnStmt
+    | funLlamado ';'
     ;
 
 bloqueRaiz
@@ -63,13 +64,17 @@ funArgsLlamado
     : expresion (',' expresion)*
     ;
 
+funLlamado
+    : ID '(' funArgsLlamado? ')' 
+    ;
+
 expresion
     : expresion op=('*'|'/') expresion     # MathMultiplicacion
     | expresion op=('+'|'-') expresion     # MathSumaResta
     | expresion op=('=='|'!='|'<'|'>'|'<='|'>=') expresion  # BoolComparacion
     | expresion op=('&&'|'||') expresion   # BoolLogico
     | '(' expresion ')'               # ExpresionContenedora
-    | ID '(' funArgsLlamado? ')'     # Funcion
+    | funLlamado    # Funcion
     | lvalue                       # LvalueExpr
     | INT                        # Entero
     | '"' ID* '"'                 # Cadena

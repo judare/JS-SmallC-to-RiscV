@@ -1,52 +1,55 @@
 import SmallCListener from "./parser/SmallCListener.js";
+
 export default class SemanticValidator extends SmallCListener {
   constructor() {
     super();
-    this.scopes = [{}]; // stack de scopes (manejo de bloques)
-    this.errors = [];
+    this.scope = {}; // stack de scopes para variables
+    this.error = "";
   }
 
-  enterBlock() {
-    this.scopes.push({});
+  setError(msg) {
+    if (this.error) {
+      return;
+    }
+    this.error = msg;
   }
 
-  exitBlock() {
-    this.scopes.pop();
+  enterDeclaracion(ctx) {
+    const id = ctx.ID().getText();
+    if (this.scope[id]) {
+      return this.setError(`Variable ya declarada: '${id}'`);
+    }
+    this.scope[id] = "variable";
   }
 
-  enterVarDecl(ctx) {
-    const varName = ctx.ID().getText();
-    const currentScope = this.scopes[this.scopes.length - 1];
-
-    if (currentScope[varName]) {
-      this.errors.push(`Variable '${varName}' ya fue declarada.`);
-    } else {
-      currentScope[varName] = true;
+  enterFunLlamado(ctx) {
+    const id = ctx.ID().getText();
+    if (!this.scope[id]) {
+      return this.setError(`Función no declarada: '${id}'`);
     }
   }
 
-  enterVarUse(ctx) {
-    const varName = ctx.ID().getText();
-    if (!this.scopes.some((scope) => scope[varName])) {
-      this.errors.push(`Variable '${varName}' no está declarada.`);
+  enterLvalue(ctx) {
+    const id = ctx.ID().getText();
+    const found = this.scope[id];
+    if (!found) {
+      return this.setError(`Variable no declarada: '${id}'`);
     }
   }
 
-  enterFuncDecl(ctx) {
-    const funcName = ctx.ID().getText();
-    const globalScope = this.scopes[0];
-
-    if (globalScope[funcName]) {
-      this.errors.push(`Función '${funcName}' ya fue declarada.`);
-    } else {
-      globalScope[funcName] = "function";
+  enterParam(ctx) {
+    const id = ctx.ID().getText();
+    if (this.scope[id]) {
+      return this.setError(`Param duplicado: '${id}'`);
     }
+    this.scope[id] = "param";
   }
 
-  enterFuncCall(ctx) {
-    const funcName = ctx.ID().getText();
-    if (!this.scopes[0][funcName]) {
-      this.errors.push(`Función '${funcName}' no está declarada.`);
+  enterFunctionDecl(ctx) {
+    const id = ctx.ID().getText();
+    if (this.scope[id]) {
+      return this.setError(`Función ya declarada: '${id}'`);
     }
+    this.scope[id] = "function";
   }
 }

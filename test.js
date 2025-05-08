@@ -17,6 +17,7 @@ const getAST = (input) => {
   lexer.addErrorListener(new MyErrorListener());
   const tokens = new antlr4.CommonTokenStream(lexer);
   const parser = new SmallCParser(tokens);
+  parser.buildParseTrees = true;
   parser.addErrorListener(new MyErrorListener());
   return parser.program();
 };
@@ -27,14 +28,15 @@ const testSyntax = async (file, expected = "done") => {
     await getAST(input);
     if (expected === "done") {
       console.log("✅ Test ok " + file);
-    } else if (expected === "error") {
+    }
+    if (expected === "error") {
       console.log("❌ Test error " + file);
     }
   } catch (err) {
     if (expected === "done") {
       console.log("❌ Test error " + file);
     } else if (expected === "error") {
-      console.log("✅ Test ok " + file);
+      console.log("✅ Test ok " + file, err?.message);
     }
   }
 };
@@ -47,11 +49,11 @@ const testLexer = async (file, expected = "done") => {
   const validator = new SemanticValidator();
   walker.walk(validator, tree);
 
-  if (validator.errors.length) {
+  if (validator.error) {
     if (expected === "done") {
       console.log("❌ Test error " + file);
     } else if (expected === "error") {
-      console.log("✅ Test ok " + file);
+      console.log("✅ Test ok " + file, validator.error);
     }
   } else {
     if (expected === "done") {
@@ -70,3 +72,5 @@ testSyntax("./examples/done-functions.c");
 testSyntax("./examples/error-var.c", "error");
 testSyntax("./examples/error-localvars.c", "error");
 testLexer("./examples/error-lexer-var.c", "error");
+testLexer("./examples/error-lexer-nodeclared-fn.c", "error");
+testLexer("./examples/error-lexer-nodeclared.c", "error");

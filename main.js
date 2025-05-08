@@ -13,13 +13,21 @@ class MyErrorListener extends antlr4.error.ErrorListener {
 }
 
 const getAST = (input) => {
+  // GET AST
   const chars = new antlr4.InputStream(input);
   const lexer = new SmallCLexer(chars);
   lexer.addErrorListener(new MyErrorListener());
   const tokens = new antlr4.CommonTokenStream(lexer);
   const parser = new SmallCParser(tokens);
   parser.addErrorListener(new MyErrorListener());
-  return parser.program();
+  const tree = parser.program();
+
+  // validate lexer
+  const walker = new antlr4.tree.ParseTreeWalker();
+  const validator = new SemanticValidator();
+  walker.walk(validator, tree);
+
+  return tree;
 };
 
 const getRiscvCode = async (input) => {
