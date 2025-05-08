@@ -21,8 +21,8 @@ export default class SemanticValidator extends SmallCListener {
       }
       this.scope[id] = "variable";
     };
-    let obj = ctx.ID().length >= 1 ? ctx.ID() : [ctx.ID()];
-    obj.forEach(declare);
+    let ids = ctx.ID().length >= 1 ? ctx.ID() : [ctx.ID()];
+    ids.forEach(declare);
   }
 
   enterFunLlamado(ctx) {
@@ -41,11 +41,14 @@ export default class SemanticValidator extends SmallCListener {
   }
 
   enterParam(ctx) {
-    const id = ctx.ID().getText();
-    if (this.scope[id]) {
-      return this.setError(`Param duplicado: '${id}'`);
-    }
-    this.scope[id] = "param";
+    const declare = (id) => {
+      if (this.scope[id]) {
+        return this.setError(`Param duplicado: '${id}'`);
+      }
+      this.scope[id] = "param";
+    };
+    let ids = ctx.ID().length >= 1 ? ctx.ID() : [ctx.ID()];
+    ids.forEach(declare);
   }
 
   enterFunctionDecl(ctx) {
