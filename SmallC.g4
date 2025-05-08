@@ -27,13 +27,15 @@ paramList
     : param (',' param)*
     ;
 
+argumentList
+    : expresion (',' expresion)*
+    ;
+
 returnStmt
     : 'return' expresion? ';'
     ;
 
-param
-    : tiposPermitidos ID
-    ;
+param : tiposPermitidos ID;
 
 tipoRetorno: tiposPermitidos| 'void' ;
 tiposPermitidos: 'int' | 'char' ;
@@ -66,18 +68,18 @@ funArgsLlamado
     ;
 
 funLlamado
-    : ID '(' funArgsLlamado? ')' 
+    : ID '(' argumentList? ')' 
     ;
 
 expresion
-    : expresion op=('*'|'/') expresion     # MathMultiplicacion
-    | expresion op=('+'|'-') expresion     # MathSumaResta
+    : expresion op=('*'|'/' | '-') expresion     # Math
+    | expresion '+' expresion         #suma
     | expresion op=('=='|'!='|'<'|'>'|'<='|'>=') expresion  # BoolComparacion
     | expresion op=('&&'|'||') expresion   # BoolLogico
     | '(' expresion ')'               # ExpresionContenedora
     | funLlamado    # Funcion
-    | lvalue                       # LvalueExpr
-    | INT                        # Entero
+    | lvalue                       # ArrayPositionOrVariable
+    | INT                         # Int
     | '"' ID* '"'                 # Cadena
     ;
 
